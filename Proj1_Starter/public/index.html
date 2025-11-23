@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lilac Password Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(145deg, #e8dff5 0%, #f5f0fa 50%, #ddd5eb 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+    }
+    
+    .app {
+      width: 100%;
+      max-width: 420px;
+    }
+    
+    /* Card Styles */
+    .card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(120, 80, 150, 0.15);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    
+    .card-header {
+      background: linear-gradient(135deg, #9b7bb8 0%, #7d5a9e 100%);
+      padding: 40px 30px;
+      text-align: center;
+      color: white;
+    }
+    
+    .logo {
+      width: 70px;
+      height: 70px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    
+    .logo svg {
+      width: 36px;
+      height: 36px;
+      fill: white;
+    }
+    
+    .card-header h1 {
+      font-size: 1.5em;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    
+    .card-header p {
+      font-size: 0.9em;
+      opacity: 0.85;
+      font-weight: 300;
+    }
+    
+    .card-body {
+      padding: 30px;
+    }
+    
+    /* Status */
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #f8f5fb;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+    
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ccc;
+    }
+    
+    .status-indicator.active {
+      background: #5cb85c;
+      box-shadow: 0 0 10px rgba(92, 184, 92, 0.5);
+    }
+    
+    .status-text {
+      font-size: 0.85em;
+      color: #6b5b7a;
+      font-weight: 500;
+    }
+    
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.8em;
+      font-weight: 600;
+      color: #7a6b8a;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .input-wrapper {
+      position: relative;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e8e0f0;
+      border-radius: 12px;
+      font-size: 0.95em;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      background: #fdfcfe;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #9b7bb8;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(155, 123, 184, 0.1);
+    }
+    
+    .form-group input::placeholder {
+      color: #b8adc5;
+    }
+    
+    /* Password Strength */
+    .password-strength {
+      margin-top: 10px;
+    }
+    
+    .strength-bar {
+      height: 4px;
+      background: #e8e0f0;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    
+    .strength-fill {
+      height: 100%;
+      width: 0%;
+      transition: all 0.3s ease;
+      border-radius: 2px;
+    }
+    
+    .strength-fill.weak { width: 25%; background: #e74c3c; }
+    .strength-fill.fair { width: 50%; background: #f39c12; }
+    .strength-fill.good { width: 75%; background: #3498db; }
+    .strength-fill.strong { width: 100%; background: #27ae60; }
+    
+    .strength-text {
+      font-size: 0.75em;
+      font-weight: 500;
+    }
+    
+    .strength-text.weak { color: #e74c3c; }
+    .strength-text.fair { color: #f39c12; }
+    .strength-text.good { color: #3498db; }
+    .strength-text.strong { color: #27ae60; }
+    
+    /* Password Requirements */
+    .requirements {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f8f5fb;
+      border-radius: 10px;
+    }
+    
+    .requirements p {
+      font-size: 0.75em;
+      color: #8a7a9a;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .requirement {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75em;
+      color: #a59ab5;
+      margin-bottom: 4px;
+    }
+    
+    .requirement.met {
+      color: #27ae60;
+    }
+    
+    .requirement svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+    
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .btn-group.vertical {
+      flex-direction: column;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #9b7bb8 0%, #7d5a9e 100%);
+      color: white;
+      box-shadow: 0 8px 20px rgba(125, 90, 158, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(125, 90, 158, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #f5f0fa;
+      color: #7a6b8a;
+    }
+    
+    .btn-secondary:hover {
+      background: #ebe4f3;
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #6dbd6d 0%, #4cae4c 100%);
+      color: white;
+      box-shadow: 0 8px 20px rgba(76, 174, 76, 0.3);
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(76, 174, 76, 0.4);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #e88 0%, #d66 100%);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #e8e0f0;
+      color: #7a6b8a;
+    }
+    
+    .btn-outline:hover {
+      border-color: #9b7bb8;
+      color: #9b7bb8;
+    }
+    
+    .btn-small {
+      padding: 8px 14px;
+      font-size: 0.8em;
+    }
+    
+    /* Section Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 28px 0;
+      gap: 15px;
+    }
+    
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: #e8e0f0;
+    }
+    
+    .divider-text {
+      font-size: 0.75em;
+      color: #a59ab5;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Output Messages */
+    .message {
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 0.85em;
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .message.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    
+    .message.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-left: 4px solid #4caf50;
+    }
+    
+    .message.error {
+      background: #ffebee;
+      color: #c62828;
+      border-left: 4px solid #ef5350;
+    }
+    
+    .message.info {
+      background: #f3e5f5;
+      color: #7b1fa2;
+      border-left: 4px solid #9c27b0;
+    }
+    
+    /* Password Result */
+    .password-result {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: #f8f5fb;
+      border-radius: 12px;
+      border: 2px solid #e8e0f0;
+    }
+    
+    .password-result.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    
+    .password-result-label {
+      font-size: 0.75em;
+      color: #8a7a9a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    
+    .password-result-value {
+      font-family: 'Courier New', monospace;
+      font-size: 1.1em;
+      color: #5a4a6a;
+      background: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      word-break: break-all;
+      border: 1px solid #e8e0f0;
+    }
+    
+    /* Generator Section */
+    .generator {
+      background: #f8f5fb;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+    
+    .generator-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .generator-title {
+      font-size: 0.8em;
+      font-weight: 600;
+      color: #7a6b8a;
+    }
+    
+    .generator-options {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: #7a6b8a;
+    }
+    
+    .option input[type="number"] {
+      width: 60px;
+      padding: 6px 10px;
+      border: 2px solid #e8e0f0;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9em;
+    }
+    
+    .option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #9b7bb8;
+    }
+    
+    /* Sections */
+    .section {
+      display: none;
+    }
+    
+    .section.active {
+      display: block;
+    }
+    
+    /* Nav Tabs */
+    .nav-tabs {
+      display: flex;
+      background: #f5f0fa;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+    
+    .nav-tab {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      background: transparent;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85em;
+      font-weight: 500;
+      color: #8a7a9a;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-tab.active {
+      background: white;
+      color: #7d5a9e;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .nav-tab:hover:not(.active) {
+      color: #7d5a9e;
+    }
+    
+    /* Lock Screen */
+    .lock-screen {
+      text-align: center;
+    }
+    
+    .lock-screen .logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+    }
+    
+    .lock-screen .logo svg {
+      width: 40px;
+      height: 40px;
+    }
+    
+    /* Hidden */
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Animations */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 15px;
+        align-items: flex-start;
+      }
+      
+      .card-header {
+        padding: 30px 20px;
+      }
+      
+      .card-body {
+        padding: 20px;
+      }
+      
+      .btn-group:not(.vertical) {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Main Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 1C8.676 1 6 3.676 6 7v2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V11c0-1.1-.9-2-2-2h-2V7c0-3.324-2.676-6-6-6zm0 2c2.276 0 4 1.724 4 4v2H8V7c0-2.276 1.724-4 4-4zm0 10c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/>
+          </svg>
+        </div>
+        <h1>Lilac Password Manager</h1>
+        <p>Secure and simple password storage</p>
+      </div>
+      
+      <div class="card-body">
+        <!-- Status Bar -->
+        <div class="status">
+          <div class="status-indicator" id="statusIndicator"></div>
+          <span class="status-text" id="statusText">Locked</span>
+        </div>
+        
+        <!-- Lock Screen (Initial View) -->
+        <div class="section active" id="lockSection">
+          <div class="form-group">
+            <label>Master Password</label>
+            <input type="password" id="masterPassword" placeholder="Enter your master password">
+            <div class="password-strength" id="masterStrength">
+              <div class="strength-bar">
+                <div class="strength-fill" id="masterStrengthFill"></div>
+              </div>
+              <span class="strength-text" id="masterStrengthText"></span>
+            </div>
+            <div class="requirements" id="masterRequirements">
+              <p>Password requirements:</p>
+              <div class="requirement" id="reqLength">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                At least 8 characters
+              </div>
+              <div class="requirement" id="reqUpper">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                One uppercase letter
+              </div>
+              <div class="requirement" id="reqLower">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                One lowercase letter
+              </div>
+              <div class="requirement" id="reqNumber">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                One number
+              </div>
+            </div>
+          </div>
+          
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="createKeychain()">Create New</button>
+            <button class="btn btn-secondary" onclick="loadKeychain()" id="btnLoad">Load Existing</button>
+          </div>
+          
+          <div class="message" id="lockMessage"></div>
+        </div>
+        
+        <!-- Manager Section (After Unlock) -->
+        <div class="section" id="managerSection">
+          <!-- Tabs -->
+          <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('save')">Save Password</button>
+            <button class="nav-tab" onclick="switchTab('retrieve')">Retrieve</button>
+          </div>
+          
+          <!-- Save Password Tab -->
+          <div class="section active" id="saveTab">
+            <div class="form-group">
+              <label>Website / Domain</label>
+              <input type="text" id="saveDomain" placeholder="e.g., google.com">
+            </div>
+            
+            <!-- Password Generator -->
+            <div class="generator">
+              <div class="generator-header">
+                <span class="generator-title">Password Generator</span>
+                <button class="btn btn-small btn-outline" onclick="generatePassword()">Generate</button>
+              </div>
+              <div class="generator-options">
+                <div class="option">
+                  <span>Length:</span>
+                  <input type="number" id="genLength" value="16" min="8" max="64">
+                </div>
+                <div class="option">
+                  <input type="checkbox" id="genSymbols" checked>
+                  <span>Symbols</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Password</label>
+              <input type="text" id="savePassword" placeholder="Enter or generate a password">
+              <div class="password-strength" id="saveStrength">
+                <div class="strength-bar">
+                  <div class="strength-fill" id="saveStrengthFill"></div>
+                </div>
+                <span class="strength-text" id="saveStrengthText"></span>
+              </div>
+            </div>
+            
+            <div class="btn-group">
+              <button class="btn btn-success" onclick="savePassword()">Save Password</button>
+            </div>
+          </div>
+          
+          <!-- Retrieve Tab -->
+          <div class="section" id="retrieveTab">
+            <div class="form-group">
+              <label>Website / Domain</label>
+              <input type="text" id="getDomain" placeholder="e.g., google.com">
+            </div>
+            
+            <div class="btn-group">
+              <button class="btn btn-primary" onclick="getPassword()">Retrieve Password</button>
+              <button class="btn btn-danger" onclick="deletePassword()">Delete</button>
+            </div>
+            
+            <div class="password-result" id="passwordResult">
+              <div class="password-result-label">Password for <span id="resultDomain"></span></div>
+              <div class="password-result-value" id="resultPassword"></div>
+            </div>
+          </div>
+          
+          <div class="message" id="managerMessage"></div>
+          
+          <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">Actions</span>
+            <div class="divider-line"></div>
+          </div>
+          
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="exportData()">Export Backup</button>
+            <button class="btn btn-outline" onclick="lockKeychain()">Lock</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Check status on load
+    window.onload = async function() {
+      await checkStatus();
+      
+      // Password strength listeners
+      document.getElementById('masterPassword').addEventListener('input', function() {
+        updatePasswordStrength(this.value, 'master');
+        checkRequirements(this.value);
+      });
+      
+      document.getElementById('savePassword').addEventListener('input', function() {
+        updatePasswordStrength(this.value, 'save');
+      });
+    };
+    
+    async function checkStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        
+        if (data.initialized) {
+          showManagerSection();
+        } else {
+          document.getElementById('btnLoad').style.display = data.hasSavedData ? 'flex' : 'none';
+        }
+      } catch (e) {
+        showMessage('lockMessage', 'Cannot connect to server', 'error');
+      }
+    }
+    
+    function updatePasswordStrength(password, prefix) {
+      let strength = 0;
+      let label = '';
+      
+      if (password.length >= 8) strength++;
+      if (password.length >= 12) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[a-z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+      
+      const fill = document.getElementById(prefix + 'StrengthFill');
+      const text = document.getElementById(prefix + 'StrengthText');
+      
+      fill.className = 'strength-fill';
+      text.className = 'strength-text';
+      
+      if (password.length === 0) {
+        text.textContent = '';
+        return;
+      }
+      
+      if (strength <= 2) {
+        fill.classList.add('weak');
+        text.classList.add('weak');
+        text.textContent = 'Weak';
+      } else if (strength <= 3) {
+        fill.classList.add('fair');
+        text.classList.add('fair');
+        text.textContent = 'Fair';
+      } else if (strength <= 4) {
+        fill.classList.add('good');
+        text.classList.add('good');
+        text.textContent = 'Good';
+      } else {
+        fill.classList.add('strong');
+        text.classList.add('strong');
+        text.textContent = 'Strong';
+      }
+    }
+    
+    function checkRequirements(password) {
+      const reqs = {
+        'reqLength': password.length >= 8,
+        'reqUpper': /[A-Z]/.test(password),
+        'reqLower': /[a-z]/.test(password),
+        'reqNumber': /[0-9]/.test(password)
+      };
+      
+      for (const [id, met] of Object.entries(reqs)) {
+        const el = document.getElementById(id);
+        if (met) {
+          el.classList.add('met');
+        } else {
+          el.classList.remove('met');
+        }
+      }
+    }
+    
+    async function createKeychain() {
+      const password = document.getElementById('masterPassword').value;
+      
+      if (!password) {
+        showMessage('lockMessage', 'Please enter a master password', 'error');
+        return;
+      }
+      
+      if (password.length < 8) {
+        showMessage('lockMessage', 'Password must be at least 8 characters', 'error');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/init', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          showManagerSection();
+          showMessage('managerMessage', 'Keychain created successfully', 'success');
+        } else {
+          showMessage('lockMessage', data.error, 'error');
+        }
+      } catch (e) {
+        showMessage('lockMessage', 'Error: ' + e.message, 'error');
+      }
+    }
+    
+    async function loadKeychain() {
+      const password = document.getElementById('masterPassword').value;
+      
+      if (!password) {
+        showMessage('lockMessage', 'Please enter your master password', 'error');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/load', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          showManagerSection();
+          showMessage('managerMessage', 'Keychain loaded successfully', 'success');
+        } else {
+          showMessage('lockMessage', data.error, 'error');
+        }
+      } catch (e) {
+        showMessage('lockMessage', 'Error: ' + e.message, 'error');
+      }
+    }
+    
+    async function generatePassword() {
+      const length = document.getElementById('genLength').value;
+      const symbols = document.getElementById('genSymbols').checked;
+      
+      try {
+        const res = await fetch('/api/generate?length=' + length + '&symbols=' + symbols);
+        const data = await res.json();
+        
+        if (data.success) {
+          document.getElementById('savePassword').value = data.password;
+          updatePasswordStrength(data.password, 'save');
+        }
+      } catch (e) {
+        showMessage('managerMessage', 'Error generating password', 'error');
+      }
+    }
+    
+    async function savePassword() {
+      const domain = document.getElementById('saveDomain').value;
+      const password = document.getElementById('savePassword').value;
+      
+      if (!domain) {
+        showMessage('managerMessage', 'Please enter a domain', 'error');
+        return;
+      }
+      
+      if (!password) {
+        showMessage('managerMessage', 'Please enter or generate a password', 'error');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain, password })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          showMessage('managerMessage', 'Password saved for ' + domain, 'success');
+          document.getElementById('saveDomain').value = '';
+          document.getElementById('savePassword').value = '';
+          document.getElementById('saveStrengthFill').className = 'strength-fill';
+          document.getElementById('saveStrengthText').textContent = '';
+        } else {
+          showMessage('managerMessage', data.error, 'error');
+        }
+      } catch (e) {
+        showMessage('managerMessage', 'Error: ' + e.message, 'error');
+      }
+    }
+    
+    async function getPassword() {
+      const domain = document.getElementById('getDomain').value;
+      
+      if (!domain) {
+        showMessage('managerMessage', 'Please enter a domain', 'error');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/get', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          if (data.found) {
+            document.getElementById('resultDomain').textContent = domain;
+            document.getElementById('resultPassword').textContent = data.password;
+            document.getElementById('passwordResult').classList.add('show');
+            hideMessage('managerMessage');
+          } else {
+            document.getElementById('passwordResult').classList.remove('show');
+            showMessage('managerMessage', 'No password found for ' + domain, 'error');
+          }
+        } else {
+          showMessage('managerMessage', data.error, 'error');
+        }
+      } catch (e) {
+        showMessage('managerMessage', 'Error: ' + e.message, 'error');
+      }
+    }
+    
+    async function deletePassword() {
+      const domain = document.getElementById('getDomain').value;
+      
+      if (!domain) {
+        showMessage('managerMessage', 'Please enter a domain', 'error');
+        return;
+      }
+      
+      if (!confirm('Are you sure you want to delete the password for ' + domain + '?')) {
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          document.getElementById('passwordResult').classList.remove('show');
+          if (data.removed) {
+            showMessage('managerMessage', 'Password deleted for ' + domain, 'success');
+            document.getElementById('getDomain').value = '';
+          } else {
+            showMessage('managerMessage', 'No password found for ' + domain, 'error');
+          }
+        } else {
+          showMessage('managerMessage', data.error, 'error');
+        }
+      } catch (e) {
+        showMessage('managerMessage', 'Error: ' + e.message, 'error');
+      }
+    }
+    
+    async function exportData() {
+      try {
+        const res = await fetch('/api/dump');
+        const data = await res.json();
+        
+        if (data.success) {
+          const blob = new Blob([data.data], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'lilac-keychain-backup.json';
+          a.click();
+          URL.revokeObjectURL(url);
+          
+          showMessage('managerMessage', 'Backup exported successfully', 'success');
+        } else {
+          showMessage('managerMessage', data.error, 'error');
+        }
+      } catch (e) {
+        showMessage('managerMessage', 'Error: ' + e.message, 'error');
+      }
+    }
+    
+    async function lockKeychain() {
+      try {
+        await fetch('/api/lock', { method: 'POST' });
+        
+        document.getElementById('lockSection').classList.add('active');
+        document.getElementById('managerSection').classList.remove('active');
+        document.getElementById('masterPassword').value = '';
+        document.getElementById('statusIndicator').classList.remove('active');
+        document.getElementById('statusText').textContent = 'Locked';
+        
+        // Reset strength indicators
+        document.getElementById('masterStrengthFill').className = 'strength-fill';
+        document.getElementById('masterStrengthText').textContent = '';
+        
+        // Reset requirements
+        ['reqLength', 'reqUpper', 'reqLower', 'reqNumber'].forEach(id => {
+          document.getElementById(id).classList.remove('met');
+        });
+        
+        checkStatus();
+      } catch (e) {
+        showMessage('managerMessage', 'Error: ' + e.message, 'error');
+      }
+    }
+    
+    function showManagerSection() {
+      document.getElementById('lockSection').classList.remove('active');
+      document.getElementById('managerSection').classList.add('active');
+      document.getElementById('statusIndicator').classList.add('active');
+      document.getElementById('statusText').textContent = 'Unlocked';
+    }
+    
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.nav-tab[onclick*="' + tab + '"]').classList.add('active');
+      
+      document.getElementById('saveTab').classList.remove('active');
+      document.getElementById('retrieveTab').classList.remove('active');
+      document.getElementById(tab + 'Tab').classList.add('active');
+      
+      document.getElementById('passwordResult').classList.remove('show');
+      hideMessage('managerMessage');
+    }
+    
+    function showMessage(id, text, type) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'message show ' + type;
+    }
+    
+    function hideMessage(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+  </script>
+</body>
+</html>
